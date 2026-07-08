@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>退休金目標試算器</title>
+  <title>退休金儀表板</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f766e'/%3E%3Cpath d='M8 20h16M10 16h12M12 12h8' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
   <style>
     :root {
       color-scheme: light;
-      --bg: #f3f6f2;
+      --bg: #f4f7f2;
       --panel: #ffffff;
-      --ink: #12201b;
-      --muted: #66756e;
-      --line: #d9e2dc;
+      --ink: #111d18;
+      --muted: #62726b;
+      --line: #d8e2dc;
       --teal: #0f766e;
       --teal-dark: #0b5f59;
       --teal-soft: #dff4f0;
@@ -24,31 +24,22 @@
       --green-soft: #e1f5e8;
       --amber: #b45309;
       --amber-soft: #fff3d9;
-      --shadow: 0 16px 36px rgba(18, 32, 27, 0.08);
+      --shadow: 0 16px 34px rgba(17, 29, 24, 0.08);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       min-height: 100vh;
       background:
-        radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 34%),
-        linear-gradient(180deg, #f9fbf8 0%, var(--bg) 42%, #edf3ef 100%);
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 32%),
+        linear-gradient(180deg, #fbfcfa 0%, var(--bg) 48%, #edf3ef 100%);
       color: var(--ink);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    button,
-    input {
-      font: inherit;
-    }
+    button, input { font: inherit; }
 
     button {
       border: 0;
@@ -66,6 +57,11 @@
       color: var(--ink);
     }
 
+    button.danger {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
     button:disabled {
       cursor: wait;
       opacity: 0.65;
@@ -81,37 +77,20 @@
       font-size: 1rem;
     }
 
-    input:focus-visible,
-    button:focus-visible {
+    input:focus-visible, button:focus-visible {
       outline: 3px solid var(--teal-soft);
       outline-offset: 2px;
     }
 
-    h1,
-    h2,
-    h3,
-    p {
-      margin: 0;
-    }
-
-    h1 {
-      font-size: 1.85rem;
-      letter-spacing: 0;
-      line-height: 1.08;
-    }
-
-    h2 {
-      font-size: 1.08rem;
-    }
-
-    h3 {
-      font-size: 0.96rem;
-    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 1.75rem; line-height: 1.12; letter-spacing: 0; }
+    h2 { font-size: 1.08rem; }
+    h3 { font-size: 0.98rem; }
 
     .app {
-      width: min(1100px, 100%);
+      width: min(1120px, 100%);
       margin: 0 auto;
-      padding: 16px 14px calc(84px + env(safe-area-inset-bottom));
+      padding: 16px 14px calc(88px + env(safe-area-inset-bottom));
     }
 
     .topbar {
@@ -120,22 +99,8 @@
       padding: 10px 2px 14px;
     }
 
-    .status-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .brand {
-      display: grid;
-      gap: 6px;
-    }
-
-    .subtitle,
-    .small,
-    .hint,
-    label span {
+    .brand { display: grid; gap: 6px; }
+    .subtitle, .small, .hint, label span {
       color: var(--muted);
       font-size: 0.86rem;
       line-height: 1.45;
@@ -147,11 +112,11 @@
       gap: 8px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.82);
+      background: rgba(255, 255, 255, 0.86);
       color: var(--muted);
       padding: 8px 11px;
-      white-space: nowrap;
-      box-shadow: 0 8px 24px rgba(18, 32, 27, 0.06);
+      width: fit-content;
+      box-shadow: 0 8px 22px rgba(17, 29, 24, 0.06);
     }
 
     .status-dot {
@@ -161,19 +126,13 @@
       background: var(--green);
     }
 
-    .view {
-      display: none;
-      gap: 14px;
-    }
-
-    .view.active {
-      display: grid;
-    }
+    .view { display: none; gap: 14px; }
+    .view.active { display: grid; }
 
     .panel {
       border: 1px solid var(--line);
       border-radius: 16px;
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.94);
       box-shadow: var(--shadow);
       padding: 16px;
     }
@@ -186,7 +145,7 @@
       background:
         linear-gradient(135deg, rgba(15, 118, 110, 0.98), rgba(11, 95, 89, 0.92)),
         var(--teal);
-      color: white;
+      color: #fff;
     }
 
     .hero-top {
@@ -203,23 +162,24 @@
 
     .hero-value {
       margin-top: 4px;
-      font-size: clamp(2rem, 9vw, 4rem);
+      font-size: clamp(2.2rem, 11vw, 4.5rem);
       font-weight: 900;
       letter-spacing: 0;
       line-height: 1;
+      overflow-wrap: anywhere;
     }
 
     .hero-chip {
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.16);
-      color: rgba(255, 255, 255, 0.9);
+      color: rgba(255, 255, 255, 0.92);
       padding: 7px 10px;
       font-size: 0.82rem;
       white-space: nowrap;
     }
 
     .progress-rail {
-      height: 12px;
+      height: 13px;
       overflow: hidden;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.18);
@@ -234,7 +194,7 @@
       transition: width 180ms ease;
     }
 
-    .hero-meta {
+    .hero-meta, .metric-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
@@ -249,7 +209,7 @@
     .hero-meta strong {
       display: block;
       margin-top: 4px;
-      font-size: 1.08rem;
+      font-size: 1.05rem;
       overflow-wrap: anywhere;
     }
 
@@ -261,73 +221,33 @@
       margin-bottom: 12px;
     }
 
-    .case-grid {
+    .case-grid, .stress-grid, .snapshot-grid {
       display: grid;
       gap: 10px;
     }
 
-    .case-card {
+    .case-card, .metric-card, .stress-card {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
-      align-items: center;
+      gap: 7px;
       border: 1px solid var(--line);
       border-radius: 14px;
       background: #fbfcfa;
       padding: 13px;
     }
 
-    .case-card strong {
+    .case-card strong, .metric-card strong, .stress-card strong {
       display: block;
-      margin-top: 5px;
-      font-size: 1.55rem;
-      line-height: 1.05;
+      font-size: 1.45rem;
+      line-height: 1.06;
       overflow-wrap: anywhere;
     }
 
-    .case-card .pill {
-      border-radius: 999px;
-      padding: 6px 9px;
-      font-size: 0.78rem;
-      font-weight: 800;
-    }
+    .case-card.bear, .stress-card.deep { background: var(--red-soft); border-color: #ffc8bd; }
+    .case-card.base, .stress-card.mid { background: var(--blue-soft); border-color: #bfd2ff; }
+    .case-card.bull, .stress-card.light { background: var(--green-soft); border-color: #bee8cc; }
 
-    .case-card.bear {
-      background: var(--red-soft);
-      border-color: #ffc8bd;
-    }
-
-    .case-card.base {
-      background: var(--blue-soft);
-      border-color: #bfd2ff;
-    }
-
-    .case-card.bull {
-      background: var(--green-soft);
-      border-color: #bee8cc;
-    }
-
-    .bear .pill {
-      background: #fff;
-      color: var(--red);
-    }
-
-    .base .pill {
-      background: #fff;
-      color: var(--blue);
-    }
-
-    .bull .pill {
-      background: #fff;
-      color: var(--green);
-    }
-
-    .chart-card {
-      display: grid;
-      gap: 10px;
-    }
-
-    .progress-chart {
+    .chart-card { display: grid; gap: 10px; }
+    .chart-box {
       width: 100%;
       min-height: 250px;
       border: 1px solid var(--line);
@@ -357,25 +277,15 @@
       background: currentColor;
     }
 
-    .bear-line {
-      color: var(--red);
-    }
+    .bear-line { color: var(--red); }
+    .base-line { color: var(--blue); }
+    .bull-line { color: var(--green); }
+    .target-line { color: var(--amber); }
+    .actual-line { color: var(--teal); }
 
-    .base-line {
-      color: var(--blue);
-    }
-
-    .bull-line {
-      color: var(--green);
-    }
-
-    .target-line {
-      color: var(--amber);
-    }
-
-    .form-stack {
+    .form-stack, .asset-list, .manual-panel, .snapshot-list {
       display: grid;
-      gap: 12px;
+      gap: 10px;
     }
 
     .form-grid {
@@ -384,16 +294,7 @@
       gap: 10px;
     }
 
-    label {
-      display: grid;
-      gap: 6px;
-    }
-
-    .asset-list,
-    .manual-panel {
-      display: grid;
-      gap: 10px;
-    }
+    label { display: grid; gap: 6px; }
 
     .asset-card {
       display: grid;
@@ -411,15 +312,8 @@
       align-items: start;
     }
 
-    .asset-head strong {
-      display: block;
-      font-size: 1.04rem;
-    }
-
-    .asset-head code {
-      color: var(--muted);
-      font-size: 0.82rem;
-    }
+    .asset-head strong { display: block; font-size: 1.04rem; }
+    .asset-head code { color: var(--muted); font-size: 0.82rem; }
 
     .asset-inputs {
       display: grid;
@@ -427,19 +321,18 @@
       gap: 10px;
     }
 
-    .asset-value {
-      color: var(--muted);
-      font-size: 0.86rem;
-    }
-
-    .asset-value strong {
-      color: var(--ink);
-      font-size: 1rem;
-    }
+    .asset-value { color: var(--muted); font-size: 0.86rem; }
+    .asset-value strong { color: var(--ink); font-size: 1rem; }
 
     .actions {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
       gap: 10px;
     }
 
@@ -468,39 +361,26 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 780px;
+      min-width: 760px;
     }
 
-    th,
-    td {
+    th, td {
       border-bottom: 1px solid var(--line);
       padding: 10px 9px;
       text-align: right;
       white-space: nowrap;
     }
 
-    th:first-child,
-    td:first-child {
-      text-align: left;
-    }
-
-    tr:last-child td {
-      border-bottom: 0;
-    }
-
-    th {
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
+    th:first-child, td:first-child { text-align: left; }
+    tr:last-child td { border-bottom: 0; }
+    th { color: var(--muted); font-size: 0.8rem; }
 
     .manual-panel {
       display: none;
       margin-top: 12px;
     }
 
-    .manual-panel.open {
-      display: grid;
-    }
+    .manual-panel.open { display: grid; }
 
     .manual-row {
       display: grid;
@@ -509,19 +389,32 @@
       align-items: center;
     }
 
+    .snapshot-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fbfcfa;
+      padding: 12px;
+    }
+
+    .snapshot-item strong, .snapshot-item span { display: block; }
+
     .bottom-nav {
       position: fixed;
       left: 50%;
       bottom: max(10px, env(safe-area-inset-bottom));
       z-index: 20;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      width: min(520px, calc(100% - 22px));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      width: min(560px, calc(100% - 22px));
       transform: translateX(-50%);
       border: 1px solid var(--line);
       border-radius: 18px;
       background: rgba(255, 255, 255, 0.94);
-      box-shadow: 0 14px 34px rgba(18, 32, 27, 0.18);
+      box-shadow: 0 14px 34px rgba(17, 29, 24, 0.18);
       padding: 6px;
       backdrop-filter: blur(14px);
     }
@@ -534,66 +427,37 @@
       color: var(--muted);
       padding: 8px 6px;
       text-align: center;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
     }
 
-    .tab-button span {
-      font-size: 1.15rem;
-      line-height: 1;
-    }
-
-    .tab-button.active {
-      background: var(--teal-soft);
-      color: var(--teal-dark);
-    }
+    .tab-button span { font-size: 1.12rem; line-height: 1; }
+    .tab-button.active { background: var(--teal-soft); color: var(--teal-dark); }
 
     @media (min-width: 820px) {
-      .app {
-        padding: 28px 24px 104px;
-      }
-
-      .topbar {
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: start;
-      }
-
-      .view.active {
-        grid-template-columns: minmax(0, 1fr);
-      }
-
+      .app { padding: 28px 24px 104px; }
+      .topbar { grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
       .overview-grid {
         display: grid;
-        grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+        grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
         gap: 14px;
       }
-
-      .case-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .settings-grid {
+      .case-grid, .stress-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .settings-grid, .records-grid {
         display: grid;
-        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
         gap: 14px;
         align-items: start;
       }
-
-      .asset-list {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
+      .asset-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
-    @media (max-width: 520px) {
-      .form-grid,
-      .asset-inputs,
-      .actions,
-      .hero-meta {
+    @media (max-width: 560px) {
+      .form-grid, .asset-inputs, .actions, .hero-meta, .metric-grid, .manual-row {
         grid-template-columns: 1fr;
       }
-
-      .manual-row {
-        grid-template-columns: 1fr;
-      }
+      .button-row button { width: 100%; }
+      .snapshot-item { grid-template-columns: 1fr; }
+      .snapshot-item button { width: 100%; }
     }
   </style>
 </head>
@@ -601,8 +465,8 @@
   <main class="app">
     <header class="topbar">
       <div class="brand">
-        <h1>退休金目標</h1>
-        <p class="subtitle">用 0050、0050正二、SMH 估算 40 歲前達到 1,500 萬台幣還差多遠。</p>
+        <h1>退休金儀表板</h1>
+        <p class="subtitle">0050 / 0050正二 70/30 為主，SMH 只保留現有持股。主判斷採 Bear case + 3% 通膨。</p>
       </div>
       <div class="status" aria-live="polite">
         <span class="status-dot" aria-hidden="true"></span>
@@ -612,68 +476,83 @@
 
     <section id="view-overview" class="view active" data-view="overview">
       <div class="overview-grid">
-        <section class="panel hero-card" aria-label="退休目標總覽">
+        <section class="panel hero-card" aria-label="實質退休目標進度">
           <div class="hero-top">
             <div>
-              <p class="hero-label">目前資產估值</p>
-              <div id="current-value" class="hero-value">NT$0</div>
+              <p class="hero-label">實質目標進度</p>
+              <div id="real-progress" class="hero-value">0%</div>
             </div>
             <span id="years-left" class="hero-chip">14 年</span>
           </div>
-          <div class="progress-rail" aria-label="距離目標完成度">
+          <div class="progress-rail" aria-label="通膨調整後目標完成度">
             <div id="goal-progress-fill" class="progress-fill"></div>
           </div>
           <div class="hero-meta">
             <div>
-              <span class="hero-label">目標淨資產</span>
+              <span class="hero-label">目前資產</span>
+              <strong id="current-value">NT$0</strong>
+            </div>
+            <div>
+              <span class="hero-label">通膨後目標</span>
+              <strong id="inflated-target-label">NT$0</strong>
+            </div>
+            <div>
+              <span class="hero-label">名目目標</span>
               <strong id="target-label">NT$15,000,000</strong>
             </div>
             <div>
-              <span class="hero-label">與目標差距</span>
-              <strong id="gap-value">NT$15,000,000</strong>
+              <span class="hero-label">實質差距</span>
+              <strong id="gap-value">差 NT$0</strong>
             </div>
           </div>
         </section>
 
         <section class="panel" aria-labelledby="case-heading">
           <div class="section-title">
-            <h2 id="case-heading">每年需要投入</h2>
-            <span class="small">年末投入</span>
+            <div>
+              <h2 id="case-heading">每年需要投入</h2>
+              <p class="small">以通膨後目標試算，年末投入；月均只是把年投入除以 12。</p>
+            </div>
+            <span class="small">Bear + 通膨為主</span>
           </div>
           <div class="case-grid">
             <article class="case-card bear">
-              <div>
-                <h3>Bear case</h3>
-                <strong id="bear-required">待試算</strong>
-                <p class="small" id="bear-detail">保守情境</p>
-              </div>
-              <span class="pill">Bear</span>
+              <h3>Bear case</h3>
+              <strong id="bear-required">待試算</strong>
+              <p class="small" id="bear-monthly">月均待試算</p>
+              <p class="small" id="bear-detail">保守情境</p>
             </article>
             <article class="case-card base">
-              <div>
-                <h3>Base case</h3>
-                <strong id="base-required">待試算</strong>
-                <p class="small" id="base-detail">平均情境</p>
-              </div>
-              <span class="pill">Base</span>
+              <h3>Base case</h3>
+              <strong id="base-required">待試算</strong>
+              <p class="small" id="base-monthly">月均待試算</p>
+              <p class="small" id="base-detail">平均情境</p>
             </article>
             <article class="case-card bull">
-              <div>
-                <h3>Bull case</h3>
-                <strong id="bull-required">待試算</strong>
-                <p class="small" id="bull-detail">樂觀情境</p>
-              </div>
-              <span class="pill">Bull</span>
+              <h3>Bull case</h3>
+              <strong id="bull-required">待試算</strong>
+              <p class="small" id="bull-monthly">月均待試算</p>
+              <p class="small" id="bull-detail">樂觀情境</p>
             </article>
           </div>
         </section>
       </div>
 
+      <section class="panel" aria-labelledby="stress-heading">
+        <div class="section-title">
+          <div>
+            <h2 id="stress-heading">回撤壓力測試</h2>
+            <p class="small">假設現在資產立刻回撤，再用 Bear case + 通膨重新估每年要補多少。</p>
+          </div>
+        </div>
+        <div id="stress-grid" class="stress-grid"></div>
+      </section>
+
       <section class="panel chart-card" aria-labelledby="progress-heading">
         <div class="section-title">
           <div>
-            <h2 id="progress-heading">距離 1,500 萬進度</h2>
-            <p class="small">不含未來新增投入，只看目前持股自然成長。</p>
+            <h2 id="progress-heading">距離實質目標進度</h2>
+            <p class="small">不含未來新增投入，只看目前持股自然成長；目標線為 3% 通膨後的退休目標。</p>
           </div>
           <span class="small">Bear / Base / Bull</span>
         </div>
@@ -681,10 +560,9 @@
           <span class="legend-item bear-line"><span class="legend-swatch"></span>Bear</span>
           <span class="legend-item base-line"><span class="legend-swatch"></span>Base</span>
           <span class="legend-item bull-line"><span class="legend-swatch"></span>Bull</span>
-          <span class="legend-item target-line"><span class="legend-swatch"></span>目標</span>
+          <span class="legend-item target-line"><span class="legend-swatch"></span>通膨後目標</span>
         </div>
-        <div id="progress-chart" class="progress-chart" aria-label="Bear Base Bull 淨資產進度圖"></div>
-        <p class="small">圖表刻度聚焦在目標附近；超過目標後的精確金額請看下方表格。</p>
+        <div id="progress-chart" class="chart-box" aria-label="Bear Base Bull 淨資產進度圖"></div>
         <div class="table-wrap">
           <table>
             <thead>
@@ -709,66 +587,39 @@
         <div class="section-title">
           <div>
             <h2>目前持股</h2>
-            <p class="small">輸入股數後會即時更新總覽與進度。</p>
+            <p class="small">未來投入預設 0050 / 0050正二 = 70 / 30；SMH 預設 0%，只算現有部位。</p>
           </div>
           <span class="small" id="fx-label">USD/TWD 32.11</span>
         </div>
         <div class="asset-list">
           <article class="asset-card">
             <div class="asset-head">
-              <div>
-                <strong>0050</strong>
-                <code>0050.TW</code>
-              </div>
+              <div><strong>0050</strong><code>0050.TW</code></div>
               <div class="asset-value">市值 <strong id="value-0050">NT$0</strong></div>
             </div>
             <div class="asset-inputs">
-              <label>
-                <span>股數</span>
-                <input class="shares" data-symbol="0050.TW" type="number" min="0" step="1" value="0">
-              </label>
-              <label>
-                <span>未來投入比例 %</span>
-                <input class="allocation" data-symbol="0050.TW" type="number" min="0" max="100" step="1" value="70">
-              </label>
+              <label><span>股數</span><input class="shares" data-symbol="0050.TW" type="number" min="0" step="1" value="0"></label>
+              <label><span>未來投入比例 %</span><input class="allocation" data-symbol="0050.TW" type="number" min="0" max="100" step="1" value="70"></label>
             </div>
           </article>
           <article class="asset-card">
             <div class="asset-head">
-              <div>
-                <strong>0050正二</strong>
-                <code>00631L.TW</code>
-              </div>
+              <div><strong>0050正二</strong><code>00631L.TW</code></div>
               <div class="asset-value">市值 <strong id="value-00631L">NT$0</strong></div>
             </div>
             <div class="asset-inputs">
-              <label>
-                <span>股數</span>
-                <input class="shares" data-symbol="00631L.TW" type="number" min="0" step="1" value="0">
-              </label>
-              <label>
-                <span>未來投入比例 %</span>
-                <input class="allocation" data-symbol="00631L.TW" type="number" min="0" max="100" step="1" value="30">
-              </label>
+              <label><span>股數</span><input class="shares" data-symbol="00631L.TW" type="number" min="0" step="1" value="0"></label>
+              <label><span>未來投入比例 %</span><input class="allocation" data-symbol="00631L.TW" type="number" min="0" max="100" step="1" value="30"></label>
             </div>
           </article>
           <article class="asset-card">
             <div class="asset-head">
-              <div>
-                <strong>SMH</strong>
-                <code>SMH</code>
-              </div>
+              <div><strong>SMH</strong><code>SMH</code></div>
               <div class="asset-value">市值 <strong id="value-smh">NT$0</strong></div>
             </div>
             <div class="asset-inputs">
-              <label>
-                <span>股數</span>
-                <input class="shares" data-symbol="SMH" type="number" min="0" step="0.0001" value="0">
-              </label>
-              <label>
-                <span>未來投入比例 %</span>
-                <input class="allocation" data-symbol="SMH" type="number" min="0" max="100" step="1" value="0">
-              </label>
+              <label><span>股數</span><input class="shares" data-symbol="SMH" type="number" min="0" step="0.0001" value="0"></label>
+              <label><span>未來投入比例 %</span><input class="allocation" data-symbol="SMH" type="number" min="0" max="100" step="1" value="0"></label>
             </div>
           </article>
         </div>
@@ -777,7 +628,7 @@
       <section class="panel">
         <div class="section-title">
           <h2>標的資料</h2>
-          <span class="small">價格 / 報酬假設</span>
+          <span class="small">含息調整價 / 歷史報酬假設</span>
         </div>
         <div class="table-wrap">
           <table>
@@ -799,39 +650,62 @@
       </section>
     </section>
 
+    <section id="view-records" class="view" data-view="records">
+      <div class="records-grid">
+        <section class="panel chart-card" aria-labelledby="snapshot-heading">
+          <div class="section-title">
+            <div>
+              <h2 id="snapshot-heading">資產快照線圖</h2>
+              <p class="small">每次按下新增快照，會記錄日期、總資產、實質目標差距與進度。</p>
+            </div>
+          </div>
+          <div class="button-row">
+            <button id="add-snapshot" type="button">新增今日快照</button>
+            <button id="export-json" class="secondary" type="button">匯出備份 JSON</button>
+            <button id="import-json" class="secondary" type="button">匯入備份 JSON</button>
+            <input id="import-file" type="file" accept="application/json,.json" hidden>
+          </div>
+          <div id="snapshot-chart" class="chart-box" aria-label="資產快照線圖"></div>
+        </section>
+
+        <section class="panel form-stack">
+          <div class="section-title">
+            <div>
+              <h2>補登快照</h2>
+              <p class="small">忘記記錄時，可以手動補一筆歷史日期與總資產。</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label><span>日期</span><input id="snapshot-date" type="date"></label>
+            <label><span>總資產（台幣）</span><input id="snapshot-value" type="number" min="0" step="1000" placeholder="例如 2560000"></label>
+          </div>
+          <button id="add-manual-snapshot" type="button">補登快照</button>
+          <div id="snapshot-list" class="snapshot-list"></div>
+        </section>
+      </div>
+    </section>
+
     <section id="view-settings" class="view" data-view="settings">
       <div class="settings-grid">
         <section class="panel form-stack">
           <div class="section-title">
             <div>
               <h2>目標設定</h2>
-              <p class="small">調整年齡與目標金額。</p>
+              <p class="small">通膨預設 3%，主要達標判斷採 Bear + 通膨。</p>
             </div>
           </div>
           <div class="form-grid">
-            <label>
-              <span>目前年齡</span>
-              <input id="current-age" type="number" min="0" max="120" value="26">
-            </label>
-            <label>
-              <span>目標年齡</span>
-              <input id="target-age" type="number" min="0" max="120" value="40">
-            </label>
-            <label>
-              <span>目標淨資產（台幣）</span>
-              <input id="target-value" type="number" min="0" step="10000" value="15000000">
-            </label>
-            <label>
-              <span>資料來源</span>
-              <input value="Yahoo Finance / 內建參考" disabled>
-            </label>
+            <label><span>目前年齡</span><input id="current-age" type="number" min="0" max="120" value="26"></label>
+            <label><span>目標年齡</span><input id="target-age" type="number" min="0" max="120" value="40"></label>
+            <label><span>名目目標淨資產（台幣）</span><input id="target-value" type="number" min="0" step="10000" value="15000000"></label>
+            <label><span>年通膨率 %</span><input id="inflation-rate" type="number" min="0" max="20" step="0.1" value="3"></label>
           </div>
           <div class="actions">
             <button id="fetch-data" type="button">更新價格與歷史報酬</button>
             <button id="recalculate" class="secondary" type="button">重新試算</button>
           </div>
           <section id="message" class="notice">
-            目前先用內建參考價格試算；按更新可嘗試抓 Yahoo Finance 資料。
+            目前先用內建參考價格試算；按更新可嘗試抓 Yahoo Finance 資料。若瀏覽器擋住抓取，試算仍會使用內建資料。
           </section>
         </section>
 
@@ -860,6 +734,7 @@
   <nav class="bottom-nav" aria-label="主要導覽">
     <button class="tab-button active" type="button" data-tab="overview"><span>⌂</span>總覽</button>
     <button class="tab-button" type="button" data-tab="holdings"><span>▦</span>持股</button>
+    <button class="tab-button" type="button" data-tab="records"><span>⌁</span>紀錄</button>
     <button class="tab-button" type="button" data-tab="settings"><span>⚙</span>設定</button>
   </nav>
 
@@ -873,22 +748,24 @@
     const state = {
       fx: 32.11,
       updatedAt: null,
+      snapshots: [],
       data: Object.fromEntries(assets.map((asset) => [
         asset.symbol,
         { price: asset.defaultPrice, returns: { ...asset.fallbackReturns }, source: "built-in" }
       ]))
     };
 
-    const formatTwd = new Intl.NumberFormat("zh-TW", {
-      style: "currency",
-      currency: "TWD",
-      maximumFractionDigits: 0
-    });
+    const formatTwd = new Intl.NumberFormat("zh-TW", { style: "currency", currency: "TWD", maximumFractionDigits: 0 });
     const formatNumber = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 2 });
+    const formatPct = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 1 });
 
     function toNumber(value, fallback = 0) {
       const parsed = Number(value);
       return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    function todayIso() {
+      return new Date().toISOString().slice(0, 10);
     }
 
     function annualizedReturn(startValue, endValue, years) {
@@ -924,27 +801,19 @@
       return remaining / factor;
     }
 
-    function calculateScenario(input, scenario) {
-      const allocations = getAllocations();
-      const currentAssets = assets.map((asset) => ({
-        value: getAssetValueTwd(asset),
-        returnRate: state.data[asset.symbol].returns[scenario]
-      }));
-      const portfolioReturn = assets.reduce((total, asset) => {
-        return total + (allocations[asset.symbol] || 0) * state.data[asset.symbol].returns[scenario];
-      }, 0);
-      const required = calculateRequiredContribution(input.targetValue, currentAssets, portfolioReturn, input.years);
-      return { required, portfolioReturn };
-    }
-
     function getInputs() {
       const currentAge = toNumber(document.querySelector("#current-age").value);
       const targetAge = toNumber(document.querySelector("#target-age").value);
+      const targetValue = toNumber(document.querySelector("#target-value").value);
+      const inflationRate = Math.max(0, toNumber(document.querySelector("#inflation-rate").value)) / 100;
+      const years = targetAge - currentAge;
       return {
         currentAge,
         targetAge,
-        years: targetAge - currentAge,
-        targetValue: toNumber(document.querySelector("#target-value").value)
+        years,
+        targetValue,
+        inflationRate,
+        inflatedTargetValue: targetValue * Math.pow(1 + inflationRate, Math.max(0, years))
       };
     }
 
@@ -952,11 +821,19 @@
       return toNumber(document.querySelector(`.shares[data-symbol="${symbol}"]`).value);
     }
 
+    function setShares(symbol, value) {
+      document.querySelector(`.shares[data-symbol="${symbol}"]`).value = value;
+    }
+
     function getAllocations() {
       return Object.fromEntries([...document.querySelectorAll(".allocation")].map((input) => [
         input.dataset.symbol,
         Math.max(0, toNumber(input.value)) / 100
       ]));
+    }
+
+    function setAllocation(symbol, value) {
+      document.querySelector(`.allocation[data-symbol="${symbol}"]`).value = value;
     }
 
     function allocationTotal() {
@@ -967,6 +844,10 @@
       const price = state.data[asset.symbol].price;
       const fx = asset.currency === "USD" ? state.fx : 1;
       return getShares(asset.symbol) * price * fx;
+    }
+
+    function getTotalValue() {
+      return assets.reduce((sum, asset) => sum + getAssetValueTwd(asset), 0);
     }
 
     function priceLabel(asset) {
@@ -984,10 +865,40 @@
       return formatTwd.format(Math.ceil(value));
     }
 
+    function monthlyLabel(value) {
+      if (value === Number.POSITIVE_INFINITY) return "月均無法試算";
+      return `月均 ${formatTwd.format(Math.ceil(value / 12))}`;
+    }
+
     function gapLabel(targetValue, value) {
       const gap = targetValue - value;
       if (gap <= 0) return `超過 ${formatTwd.format(Math.abs(Math.floor(gap)))}`;
       return `差 ${formatTwd.format(Math.ceil(gap))}`;
+    }
+
+    function currentAssetsForScenario(scenario, multiplier = 1) {
+      return assets.map((asset) => ({
+        value: getAssetValueTwd(asset) * multiplier,
+        returnRate: state.data[asset.symbol].returns[scenario]
+      }));
+    }
+
+    function portfolioReturnForScenario(scenario) {
+      const allocations = getAllocations();
+      return assets.reduce((total, asset) => {
+        return total + (allocations[asset.symbol] || 0) * state.data[asset.symbol].returns[scenario];
+      }, 0);
+    }
+
+    function calculateScenario(input, scenario, multiplier = 1) {
+      const portfolioReturn = portfolioReturnForScenario(scenario);
+      const required = calculateRequiredContribution(
+        input.inflatedTargetValue,
+        currentAssetsForScenario(scenario, multiplier),
+        portfolioReturn,
+        input.years
+      );
+      return { required, portfolioReturn };
     }
 
     function projectedValueForScenario(scenario, yearsFromNow) {
@@ -1009,13 +920,13 @@
       }));
     }
 
-    function svgPoint(row, scenario, index, rows, scale) {
+    function svgPoint(value, index, total, maxValue) {
       const chartWidth = 820;
       const chartHeight = 190;
       const left = 54;
       const top = 26;
-      const x = rows.length <= 1 ? left : left + (index / (rows.length - 1)) * chartWidth;
-      const y = top + chartHeight - (row[scenario] / scale) * chartHeight;
+      const x = total <= 1 ? left : left + (index / (total - 1)) * chartWidth;
+      const y = top + chartHeight - (value / maxValue) * chartHeight;
       return `${x.toFixed(1)},${Math.max(top, Math.min(top + chartHeight, y)).toFixed(1)}`;
     }
 
@@ -1029,9 +940,10 @@
       }
 
       const rows = buildProgressRows(input);
-      const scale = input.targetValue > 0 ? input.targetValue * 1.35 : 1;
-      const targetY = 26 + 190 - (input.targetValue / scale) * 190;
-      const path = (scenario) => rows.map((row, index) => svgPoint(row, scenario, index, rows, scale)).join(" ");
+      const maxProjected = Math.max(input.inflatedTargetValue, ...rows.flatMap((row) => [row.bear, row.base, row.bull]));
+      const scale = Math.max(1, maxProjected * 1.15);
+      const targetY = 26 + 190 - (input.inflatedTargetValue / scale) * 190;
+      const path = (scenario) => rows.map((row, index) => svgPoint(row[scenario], index, rows.length, scale)).join(" ");
       const yTicks = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
         const value = scale * ratio;
         const y = 216 - ratio * 190;
@@ -1042,10 +954,10 @@
       }).join("");
 
       chart.innerHTML = `
-        <svg viewBox="0 0 900 260" role="img" aria-label="距離 1500 萬目標的 Bear Base Bull 進度線">
+        <svg viewBox="0 0 900 260" role="img" aria-label="距離通膨後目標的 Bear Base Bull 進度線">
           ${yTicks}
           <line x1="54" y1="${targetY.toFixed(1)}" x2="874" y2="${targetY.toFixed(1)}" stroke="#b45309" stroke-width="2" stroke-dasharray="7 6" />
-          <text x="880" y="${(targetY - 6).toFixed(1)}" text-anchor="end" font-size="12" fill="#b45309">目標</text>
+          <text x="872" y="${(targetY - 7).toFixed(1)}" text-anchor="end" font-size="12" fill="#b45309">通膨後目標</text>
           <polyline points="${path("bear")}" fill="none" stroke="#b42318" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
           <polyline points="${path("base")}" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
           <polyline points="${path("bull")}" fill="none" stroke="#15803d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
@@ -1058,13 +970,275 @@
         <tr>
           <td>${formatNumber.format(row.age)}</td>
           <td>${formatTwd.format(row.bear)}</td>
-          <td>${gapLabel(input.targetValue, row.bear)}</td>
+          <td>${gapLabel(input.inflatedTargetValue, row.bear)}</td>
           <td>${formatTwd.format(row.base)}</td>
-          <td>${gapLabel(input.targetValue, row.base)}</td>
+          <td>${gapLabel(input.inflatedTargetValue, row.base)}</td>
           <td>${formatTwd.format(row.bull)}</td>
-          <td>${gapLabel(input.targetValue, row.bull)}</td>
+          <td>${gapLabel(input.inflatedTargetValue, row.bull)}</td>
         </tr>
       `).join("");
+    }
+
+    function renderStress(input, validation) {
+      const grid = document.querySelector("#stress-grid");
+      if (validation) {
+        grid.innerHTML = `<p class="notice error">請先修正輸入資料後再產生壓力測試。</p>`;
+        return;
+      }
+      const total = getTotalValue();
+      const baseRequired = calculateScenario(input, "bear").required;
+      const shocks = [
+        { label: "-30%", multiplier: 0.7, className: "light" },
+        { label: "-50%", multiplier: 0.5, className: "mid" },
+        { label: "-70%", multiplier: 0.3, className: "deep" }
+      ];
+      grid.innerHTML = shocks.map((shock) => {
+        const stressedValue = total * shock.multiplier;
+        const required = calculateScenario(input, "bear", shock.multiplier).required;
+        const delta = required === Number.POSITIVE_INFINITY || baseRequired === Number.POSITIVE_INFINITY
+          ? "增加無法試算"
+          : `年投入增加 ${formatTwd.format(Math.max(0, Math.ceil(required - baseRequired)))}`;
+        return `
+          <article class="stress-card ${shock.className}">
+            <h3>資產回撤 ${shock.label}</h3>
+            <strong>${formatTwd.format(stressedValue)}</strong>
+            <p class="small">${gapLabel(input.inflatedTargetValue, stressedValue)}</p>
+            <p class="small">Bear 年投入 ${contributionLabel(required)}</p>
+            <p class="small">${delta}</p>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderSnapshotChart(input) {
+      const chart = document.querySelector("#snapshot-chart");
+      if (!state.snapshots.length) {
+        chart.innerHTML = `<p class="notice">還沒有快照。到紀錄頁按「新增今日快照」，之後這裡會顯示資產曲線。</p>`;
+        return;
+      }
+      const snapshots = [...state.snapshots].sort((a, b) => a.date.localeCompare(b.date));
+      const maxValue = Math.max(input.inflatedTargetValue, ...snapshots.map((item) => item.value)) * 1.15;
+      const targetY = 26 + 190 - (input.inflatedTargetValue / maxValue) * 190;
+      const points = snapshots.map((item, index) => svgPoint(item.value, index, snapshots.length, maxValue)).join(" ");
+      const circles = snapshots.map((item, index) => {
+        const [x, y] = svgPoint(item.value, index, snapshots.length, maxValue).split(",");
+        return `<circle cx="${x}" cy="${y}" r="5" fill="#0f766e"><title>${item.date} ${formatTwd.format(item.value)}</title></circle>`;
+      }).join("");
+      chart.innerHTML = `
+        <svg viewBox="0 0 900 260" role="img" aria-label="資產快照線圖">
+          <line x1="54" y1="216" x2="874" y2="216" stroke="#d9e2dc" stroke-width="1" />
+          <line x1="54" y1="${targetY.toFixed(1)}" x2="874" y2="${targetY.toFixed(1)}" stroke="#b45309" stroke-width="2" stroke-dasharray="7 6" />
+          <text x="872" y="${(targetY - 7).toFixed(1)}" text-anchor="end" font-size="12" fill="#b45309">通膨後目標</text>
+          <polyline points="${points}" fill="none" stroke="#0f766e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+          ${circles}
+          <text x="54" y="240" font-size="12" fill="#66756e">${snapshots[0].date}</text>
+          <text x="874" y="240" text-anchor="end" font-size="12" fill="#66756e">${snapshots.at(-1).date}</text>
+        </svg>
+      `;
+    }
+
+    function renderSnapshots(input) {
+      renderSnapshotChart(input);
+      const list = document.querySelector("#snapshot-list");
+      if (!state.snapshots.length) {
+        list.innerHTML = `<p class="small">尚無快照紀錄。</p>`;
+        return;
+      }
+      const rows = [...state.snapshots].sort((a, b) => b.date.localeCompare(a.date));
+      list.innerHTML = rows.map((item) => `
+        <article class="snapshot-item">
+          <div>
+            <strong>${item.date}</strong>
+            <span>${formatTwd.format(item.value)}</span>
+            <span class="small">${gapLabel(item.inflatedTargetValue || input.inflatedTargetValue, item.value)}，進度 ${formatPct.format((item.value / (item.inflatedTargetValue || input.inflatedTargetValue)) * 100)}%</span>
+          </div>
+          <button class="danger delete-snapshot" type="button" data-id="${item.id}">刪除</button>
+        </article>
+      `).join("");
+    }
+
+    function addSnapshot(date, value) {
+      const input = getInputs();
+      const cleanValue = Math.max(0, toNumber(value));
+      if (!date || cleanValue <= 0) {
+        setMessage("快照需要有效日期與大於 0 的總資產。", true);
+        return;
+      }
+      const existingIndex = state.snapshots.findIndex((item) => item.date === date);
+      const snapshot = {
+        id: `${date}-${Date.now()}`,
+        date,
+        value: cleanValue,
+        targetValue: input.targetValue,
+        inflatedTargetValue: input.inflatedTargetValue,
+        createdAt: new Date().toISOString()
+      };
+      if (existingIndex >= 0) state.snapshots.splice(existingIndex, 1, snapshot);
+      else state.snapshots.push(snapshot);
+      setMessage(`已記錄 ${date} 快照：${formatTwd.format(cleanValue)}。`, false);
+      render();
+    }
+
+    function exportBackup() {
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        settings: getInputs(),
+        fx: state.fx,
+        updatedAt: state.updatedAt,
+        data: state.data,
+        shares: Object.fromEntries(assets.map((asset) => [asset.symbol, getShares(asset.symbol)])),
+        allocations: Object.fromEntries([...document.querySelectorAll(".allocation")].map((input) => [input.dataset.symbol, toNumber(input.value)])),
+        snapshots: state.snapshots
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `retirement-dashboard-${todayIso()}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importBackup(payload) {
+      if (!payload || typeof payload !== "object") throw new Error("備份格式錯誤");
+      if (payload.settings) {
+        document.querySelector("#current-age").value = payload.settings.currentAge ?? 26;
+        document.querySelector("#target-age").value = payload.settings.targetAge ?? 40;
+        document.querySelector("#target-value").value = payload.settings.targetValue ?? 15000000;
+        document.querySelector("#inflation-rate").value = ((payload.settings.inflationRate ?? 0.03) * 100).toFixed(1);
+      }
+      if (payload.fx) state.fx = payload.fx;
+      if (payload.updatedAt) state.updatedAt = payload.updatedAt;
+      if (payload.data) {
+        assets.forEach((asset) => {
+          if (payload.data[asset.symbol]) state.data[asset.symbol] = payload.data[asset.symbol];
+        });
+      }
+      if (payload.shares) {
+        assets.forEach((asset) => setShares(asset.symbol, payload.shares[asset.symbol] ?? 0));
+      }
+      if (payload.allocations) {
+        assets.forEach((asset) => setAllocation(asset.symbol, payload.allocations[asset.symbol] ?? 0));
+      }
+      state.snapshots = Array.isArray(payload.snapshots) ? payload.snapshots : [];
+      renderManualPanel();
+      setMessage("備份已匯入。", false);
+      render({ preserveMessage: true });
+    }
+
+    function validate(input) {
+      const total = allocationTotal();
+      if (input.years <= 0) return "目標年齡必須大於目前年齡。";
+      if (input.targetValue <= 0) return "目標淨資產必須大於 0。";
+      if (Math.abs(total - 100) > 0.01) return `未來投入比例目前合計 ${total.toFixed(2)}%，必須等於 100%。`;
+      if (assets.some((asset) => state.data[asset.symbol].price <= 0)) return "仍有標的價格為 0，請先更新資料或手動輸入價格。";
+      if (assets.some((asset) => asset.currency === "USD" && state.fx <= 0)) return "SMH 需要 USD/TWD 匯率。";
+      return "";
+    }
+
+    function render(options = {}) {
+      const input = getInputs();
+      const totalValue = getTotalValue();
+      const validation = validate(input);
+      const scenarios = validation ? null : {
+        bear: calculateScenario(input, "bear"),
+        base: calculateScenario(input, "base"),
+        bull: calculateScenario(input, "bull")
+      };
+      const progress = input.inflatedTargetValue > 0 ? (totalValue / input.inflatedTargetValue) * 100 : 0;
+
+      document.querySelector("#real-progress").textContent = `${formatPct.format(progress)}%`;
+      document.querySelector("#current-value").textContent = formatTwd.format(totalValue);
+      document.querySelector("#target-label").textContent = formatTwd.format(input.targetValue);
+      document.querySelector("#inflated-target-label").textContent = formatTwd.format(input.inflatedTargetValue);
+      document.querySelector("#gap-value").textContent = gapLabel(input.inflatedTargetValue, totalValue);
+      document.querySelector("#years-left").textContent = `${formatNumber.format(input.years)} 年`;
+      document.querySelector("#goal-progress-fill").style.width = `${Math.min(100, Math.max(0, progress))}%`;
+
+      ["bear", "base", "bull"].forEach((scenario) => {
+        const result = scenarios?.[scenario];
+        document.querySelector(`#${scenario}-required`).textContent = result ? contributionLabel(result.required) : "待試算";
+        document.querySelector(`#${scenario}-monthly`).textContent = result ? monthlyLabel(result.required) : "月均待試算";
+        document.querySelector(`#${scenario}-detail`).textContent = result ? `投資組合假設報酬 ${pct(result.portfolioReturn)}` : "待試算";
+      });
+
+      document.querySelector("#fx-label").textContent = state.fx ? `USD/TWD ${formatNumber.format(state.fx)}` : "USD/TWD 尚未載入";
+      renderAssetValues();
+      renderAssetTable();
+      renderProgress(input, validation);
+      renderStress(input, validation);
+      renderSnapshots(input);
+
+      if (validation) {
+        setMessage(validation, true);
+      } else if (!options.preserveMessage && !document.querySelector("#message").classList.contains("error")) {
+        setMessage("試算已更新。主判斷採 Bear case + 3% 通膨；未來新投入按 0050/0050正二 70/30 配置。", false);
+      }
+    }
+
+    function renderAssetValues() {
+      document.querySelector("#value-0050").textContent = formatTwd.format(getAssetValueTwd(assets[0]));
+      document.querySelector("#value-00631L").textContent = formatTwd.format(getAssetValueTwd(assets[1]));
+      document.querySelector("#value-smh").textContent = formatTwd.format(getAssetValueTwd(assets[2]));
+    }
+
+    function renderAssetTable() {
+      document.querySelector("#asset-table").innerHTML = assets.map((asset) => {
+        const data = state.data[asset.symbol];
+        return `
+          <tr>
+            <td>${asset.name}</td>
+            <td>${priceLabel(asset)}</td>
+            <td>${formatNumber.format(getShares(asset.symbol))}</td>
+            <td>${formatTwd.format(getAssetValueTwd(asset))}</td>
+            <td>${pct(data.returns.bear)}</td>
+            <td>${pct(data.returns.base)}</td>
+            <td>${pct(data.returns.bull)}</td>
+            <td>${formatNumber.format(toNumber(document.querySelector(`.allocation[data-symbol="${asset.symbol}"]`).value))}%</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function setStatus(text) {
+      document.querySelector("#data-status").textContent = text;
+    }
+
+    function setMessage(text, isError) {
+      const message = document.querySelector("#message");
+      message.textContent = text;
+      message.className = isError ? "notice error" : "notice";
+    }
+
+    function renderManualPanel() {
+      const panel = document.querySelector("#manual-panel");
+      panel.querySelectorAll(".manual-row[data-symbol]").forEach((row) => row.remove());
+      assets.forEach((asset) => {
+        const data = state.data[asset.symbol];
+        const row = document.createElement("div");
+        row.className = "manual-row";
+        row.dataset.symbol = asset.symbol;
+        row.innerHTML = `
+          <strong>${asset.name}</strong>
+          <input data-field="price" data-symbol="${asset.symbol}" type="number" min="0" step="0.01" value="${data.price || ""}" aria-label="${asset.name} 手動價格">
+          <input data-field="bear" data-symbol="${asset.symbol}" type="number" step="0.1" value="${(data.returns.bear * 100).toFixed(2)}" aria-label="${asset.name} bear 年化報酬">
+          <input data-field="base" data-symbol="${asset.symbol}" type="number" step="0.1" value="${(data.returns.base * 100).toFixed(2)}" aria-label="${asset.name} base 年化報酬">
+          <input data-field="bull" data-symbol="${asset.symbol}" type="number" step="0.1" value="${(data.returns.bull * 100).toFixed(2)}" aria-label="${asset.name} bull 年化報酬">
+        `;
+        panel.appendChild(row);
+      });
+    }
+
+    function applyManualOverrides() {
+      document.querySelectorAll("#manual-panel input").forEach((input) => {
+        const symbol = input.dataset.symbol;
+        const field = input.dataset.field;
+        if (field === "price") state.data[symbol].price = Math.max(0, toNumber(input.value));
+        else state.data[symbol].returns[field] = toNumber(input.value) / 100;
+      });
     }
 
     function proxiedUrls(url) {
@@ -1144,10 +1318,7 @@
       setStatus("抓取中...");
       setMessage("正在嘗試更新 Yahoo Finance 價格、匯率與歷史報酬。", false);
 
-      const results = await Promise.allSettled([
-        fetchFx(),
-        ...assets.map(fetchAssetData)
-      ]);
+      const results = await Promise.allSettled([fetchFx(), ...assets.map(fetchAssetData)]);
       const fxResult = results[0];
       const assetResults = results.slice(1);
       let updatedCount = 0;
@@ -1164,12 +1335,12 @@
       });
 
       if (updatedCount > 0) {
-        state.updatedAt = new Date();
-        setStatus(`已更新 ${state.updatedAt.toLocaleString("zh-TW")}`);
+        state.updatedAt = new Date().toISOString();
+        setStatus(`已更新 ${new Date(state.updatedAt).toLocaleString("zh-TW")}`);
         setMessage(`已更新 ${updatedCount} 筆資料；未更新項目保留內建參考資料。`, false);
       } else {
         setStatus("使用內建參考資料");
-        setMessage("Yahoo Finance 目前抓取失敗，已保留內建參考價格與報酬繼續試算。", false);
+        setMessage("Yahoo Finance 目前抓取失敗。這不是試算壞掉，現在會用內建參考價格與報酬繼續算。", false);
       }
 
       button.disabled = false;
@@ -1177,126 +1348,14 @@
       render({ preserveMessage: true });
     }
 
-    function setStatus(text) {
-      document.querySelector("#data-status").textContent = text;
-    }
-
-    function setMessage(text, isError) {
-      const message = document.querySelector("#message");
-      message.textContent = text;
-      message.className = isError ? "notice error" : "notice";
-    }
-
-    function renderManualPanel() {
-      const panel = document.querySelector("#manual-panel");
-      const existingRows = panel.querySelectorAll(".manual-row[data-symbol]");
-      existingRows.forEach((row) => row.remove());
-      assets.forEach((asset) => {
-        const data = state.data[asset.symbol];
-        const row = document.createElement("div");
-        row.className = "manual-row";
-        row.dataset.symbol = asset.symbol;
-        row.innerHTML = `
-          <strong>${asset.name}</strong>
-          <input data-field="price" data-symbol="${asset.symbol}" type="number" min="0" step="0.01" value="${data.price || ""}" aria-label="${asset.name} 手動價格">
-          <input data-field="bear" data-symbol="${asset.symbol}" type="number" step="0.1" value="${(data.returns.bear * 100).toFixed(2)}" aria-label="${asset.name} bear 年化報酬">
-          <input data-field="base" data-symbol="${asset.symbol}" type="number" step="0.1" value="${(data.returns.base * 100).toFixed(2)}" aria-label="${asset.name} base 年化報酬">
-          <input data-field="bull" data-symbol="${asset.symbol}" type="number" step="0.1" value="${(data.returns.bull * 100).toFixed(2)}" aria-label="${asset.name} bull 年化報酬">
-        `;
-        panel.appendChild(row);
-      });
-    }
-
-    function applyManualOverrides() {
-      document.querySelectorAll("#manual-panel input").forEach((input) => {
-        const symbol = input.dataset.symbol;
-        const field = input.dataset.field;
-        if (field === "price") {
-          state.data[symbol].price = Math.max(0, toNumber(input.value));
-          return;
-        }
-        state.data[symbol].returns[field] = toNumber(input.value) / 100;
-      });
-    }
-
-    function validate(input) {
-      const total = allocationTotal();
-      if (input.years <= 0) return "目標年齡必須大於目前年齡。";
-      if (input.targetValue <= 0) return "目標淨資產必須大於 0。";
-      if (Math.abs(total - 100) > 0.01) return `未來投入比例目前合計 ${total.toFixed(2)}%，必須等於 100%。`;
-      if (assets.some((asset) => state.data[asset.symbol].price <= 0)) return "仍有標的價格為 0，請先更新資料或手動輸入價格。";
-      if (assets.some((asset) => asset.currency === "USD" && state.fx <= 0)) return "SMH 需要 USD/TWD 匯率。";
-      return "";
-    }
-
-    function render(options = {}) {
-      const input = getInputs();
-      const totalValue = assets.reduce((sum, asset) => sum + getAssetValueTwd(asset), 0);
-      const validation = validate(input);
-      const scenarios = validation ? null : {
-        bear: calculateScenario(input, "bear"),
-        base: calculateScenario(input, "base"),
-        bull: calculateScenario(input, "bull")
-      };
-
-      document.querySelector("#current-value").textContent = formatTwd.format(totalValue);
-      document.querySelector("#target-label").textContent = formatTwd.format(input.targetValue);
-      document.querySelector("#gap-value").textContent = gapLabel(input.targetValue, totalValue);
-      document.querySelector("#years-left").textContent = `${formatNumber.format(input.years)} 年`;
-      document.querySelector("#goal-progress-fill").style.width = `${Math.min(100, input.targetValue > 0 ? (totalValue / input.targetValue) * 100 : 0)}%`;
-
-      document.querySelector("#bear-required").textContent = scenarios ? contributionLabel(scenarios.bear.required) : "待試算";
-      document.querySelector("#base-required").textContent = scenarios ? contributionLabel(scenarios.base.required) : "待試算";
-      document.querySelector("#bull-required").textContent = scenarios ? contributionLabel(scenarios.bull.required) : "待試算";
-      document.querySelector("#bear-detail").textContent = scenarios ? `投資組合假設報酬 ${pct(scenarios.bear.portfolioReturn)}` : "保守情境";
-      document.querySelector("#base-detail").textContent = scenarios ? `投資組合假設報酬 ${pct(scenarios.base.portfolioReturn)}` : "平均情境";
-      document.querySelector("#bull-detail").textContent = scenarios ? `投資組合假設報酬 ${pct(scenarios.bull.portfolioReturn)}` : "樂觀情境";
-
-      document.querySelector("#fx-label").textContent = state.fx ? `USD/TWD ${formatNumber.format(state.fx)}` : "USD/TWD 尚未載入";
-      renderAssetValues();
-      renderAssetTable();
-      renderProgress(input, validation);
-
-      if (validation) {
-        setMessage(validation, true);
-      } else if (!options.preserveMessage && !document.querySelector("#message").classList.contains("error")) {
-        setMessage("試算已更新。每年投入金額採年末投入，且假設未來投入按你設定的比例配置。", false);
-      }
-    }
-
-    function renderAssetValues() {
-      document.querySelector("#value-0050").textContent = formatTwd.format(getAssetValueTwd(assets[0]));
-      document.querySelector("#value-00631L").textContent = formatTwd.format(getAssetValueTwd(assets[1]));
-      document.querySelector("#value-smh").textContent = formatTwd.format(getAssetValueTwd(assets[2]));
-    }
-
-    function renderAssetTable() {
-      const rows = assets.map((asset) => {
-        const data = state.data[asset.symbol];
-        return `
-          <tr>
-            <td>${asset.name}</td>
-            <td>${priceLabel(asset)}</td>
-            <td>${formatNumber.format(getShares(asset.symbol))}</td>
-            <td>${formatTwd.format(getAssetValueTwd(asset))}</td>
-            <td>${pct(data.returns.bear)}</td>
-            <td>${pct(data.returns.base)}</td>
-            <td>${pct(data.returns.bull)}</td>
-            <td>${formatNumber.format(toNumber(document.querySelector(`.allocation[data-symbol="${asset.symbol}"]`).value))}%</td>
-          </tr>
-        `;
-      }).join("");
-      document.querySelector("#asset-table").innerHTML = rows;
-    }
-
     function setActiveTab(tabName) {
-      document.querySelectorAll(".view").forEach((view) => {
-        view.classList.toggle("active", view.dataset.view === tabName);
-      });
-      document.querySelectorAll(".tab-button").forEach((button) => {
-        button.classList.toggle("active", button.dataset.tab === tabName);
-      });
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.dataset.view === tabName));
+      document.querySelectorAll(".tab-button").forEach((button) => button.classList.toggle("active", button.dataset.tab === tabName));
+      try {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch {
+        document.documentElement.scrollTop = 0;
+      }
     }
 
     document.querySelector("#fetch-data").addEventListener("click", refreshData);
@@ -1306,6 +1365,31 @@
     });
     document.querySelector("#toggle-manual").addEventListener("click", () => {
       document.querySelector("#manual-panel").classList.toggle("open");
+    });
+    document.querySelector("#add-snapshot").addEventListener("click", () => addSnapshot(todayIso(), getTotalValue()));
+    document.querySelector("#add-manual-snapshot").addEventListener("click", () => {
+      addSnapshot(document.querySelector("#snapshot-date").value, document.querySelector("#snapshot-value").value);
+      document.querySelector("#snapshot-value").value = "";
+    });
+    document.querySelector("#export-json").addEventListener("click", exportBackup);
+    document.querySelector("#import-json").addEventListener("click", () => document.querySelector("#import-file").click());
+    document.querySelector("#import-file").addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        importBackup(JSON.parse(await file.text()));
+      } catch (error) {
+        setMessage(`匯入失敗：${error.message}`, true);
+      } finally {
+        event.target.value = "";
+      }
+    });
+    document.querySelector("#snapshot-list").addEventListener("click", (event) => {
+      const button = event.target.closest(".delete-snapshot");
+      if (!button) return;
+      state.snapshots = state.snapshots.filter((item) => item.id !== button.dataset.id);
+      setMessage("快照已刪除。", false);
+      render();
     });
     document.querySelectorAll(".tab-button").forEach((button) => {
       button.addEventListener("click", () => setActiveTab(button.dataset.tab));
@@ -1320,9 +1404,11 @@
       annualizedReturn,
       rollingAnnualizedReturns,
       calculateRequiredContribution,
-      returnsFromPoints
+      returnsFromPoints,
+      importBackup
     };
 
+    document.querySelector("#snapshot-date").value = todayIso();
     renderManualPanel();
     render();
   </script>
