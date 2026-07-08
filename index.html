@@ -1,0 +1,1330 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>退休金目標試算器</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f766e'/%3E%3Cpath d='M8 20h16M10 16h12M12 12h8' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f6f2;
+      --panel: #ffffff;
+      --ink: #12201b;
+      --muted: #66756e;
+      --line: #d9e2dc;
+      --teal: #0f766e;
+      --teal-dark: #0b5f59;
+      --teal-soft: #dff4f0;
+      --red: #b42318;
+      --red-soft: #ffe5df;
+      --blue: #1d4ed8;
+      --blue-soft: #e2ebff;
+      --green: #15803d;
+      --green-soft: #e1f5e8;
+      --amber: #b45309;
+      --amber-soft: #fff3d9;
+      --shadow: 0 16px 36px rgba(18, 32, 27, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 34%),
+        linear-gradient(180deg, #f9fbf8 0%, var(--bg) 42%, #edf3ef 100%);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      background: var(--teal);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 800;
+      padding: 12px 14px;
+    }
+
+    button.secondary {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink);
+      padding: 12px;
+      font-size: 1rem;
+    }
+
+    input:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--teal-soft);
+      outline-offset: 2px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      letter-spacing: 0;
+      line-height: 1.08;
+    }
+
+    h2 {
+      font-size: 1.08rem;
+    }
+
+    h3 {
+      font-size: 0.96rem;
+    }
+
+    .app {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+      padding: 16px 14px calc(84px + env(safe-area-inset-bottom));
+    }
+
+    .topbar {
+      display: grid;
+      gap: 12px;
+      padding: 10px 2px 14px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 6px;
+    }
+
+    .subtitle,
+    .small,
+    .hint,
+    label span {
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--muted);
+      padding: 8px 11px;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(18, 32, 27, 0.06);
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .view {
+      display: none;
+      gap: 14px;
+    }
+
+    .view.active {
+      display: grid;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .hero-card {
+      display: grid;
+      gap: 14px;
+      overflow: hidden;
+      border: 0;
+      background:
+        linear-gradient(135deg, rgba(15, 118, 110, 0.98), rgba(11, 95, 89, 0.92)),
+        var(--teal);
+      color: white;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .hero-label {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.86rem;
+    }
+
+    .hero-value {
+      margin-top: 4px;
+      font-size: clamp(2rem, 9vw, 4rem);
+      font-weight: 900;
+      letter-spacing: 0;
+      line-height: 1;
+    }
+
+    .hero-chip {
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      color: rgba(255, 255, 255, 0.9);
+      padding: 7px 10px;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .progress-rail {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .progress-fill {
+      width: 0%;
+      max-width: 100%;
+      height: 100%;
+      border-radius: 999px;
+      background: #fff;
+      transition: width 180ms ease;
+    }
+
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .hero-meta div {
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.13);
+      padding: 10px;
+    }
+
+    .hero-meta strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 1.08rem;
+      overflow-wrap: anywhere;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .case-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .case-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fbfcfa;
+      padding: 13px;
+    }
+
+    .case-card strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 1.55rem;
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+    }
+
+    .case-card .pill {
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .case-card.bear {
+      background: var(--red-soft);
+      border-color: #ffc8bd;
+    }
+
+    .case-card.base {
+      background: var(--blue-soft);
+      border-color: #bfd2ff;
+    }
+
+    .case-card.bull {
+      background: var(--green-soft);
+      border-color: #bee8cc;
+    }
+
+    .bear .pill {
+      background: #fff;
+      color: var(--red);
+    }
+
+    .base .pill {
+      background: #fff;
+      color: var(--blue);
+    }
+
+    .bull .pill {
+      background: #fff;
+      color: var(--green);
+    }
+
+    .chart-card {
+      display: grid;
+      gap: 10px;
+    }
+
+    .progress-chart {
+      width: 100%;
+      min-height: 250px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fbfcfa;
+      overflow: hidden;
+    }
+
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .legend-swatch {
+      width: 22px;
+      height: 3px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .bear-line {
+      color: var(--red);
+    }
+
+    .base-line {
+      color: var(--blue);
+    }
+
+    .bull-line {
+      color: var(--green);
+    }
+
+    .target-line {
+      color: var(--amber);
+    }
+
+    .form-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+    }
+
+    .asset-list,
+    .manual-panel {
+      display: grid;
+      gap: 10px;
+    }
+
+    .asset-card {
+      display: grid;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fbfcfa;
+      padding: 13px;
+    }
+
+    .asset-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .asset-head strong {
+      display: block;
+      font-size: 1.04rem;
+    }
+
+    .asset-head code {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .asset-inputs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .asset-value {
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .asset-value strong {
+      color: var(--ink);
+      font-size: 1rem;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .notice {
+      border-left: 4px solid var(--amber);
+      border-radius: 14px;
+      background: var(--amber-soft);
+      color: #5c3900;
+      padding: 12px;
+      line-height: 1.55;
+    }
+
+    .error {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+      color: #681b13;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 780px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 9px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .manual-panel {
+      display: none;
+      margin-top: 12px;
+    }
+
+    .manual-panel.open {
+      display: grid;
+    }
+
+    .manual-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) repeat(4, minmax(0, 0.78fr));
+      gap: 8px;
+      align-items: center;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: max(10px, env(safe-area-inset-bottom));
+      z-index: 20;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      width: min(520px, calc(100% - 22px));
+      transform: translateX(-50%);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 14px 34px rgba(18, 32, 27, 0.18);
+      padding: 6px;
+      backdrop-filter: blur(14px);
+    }
+
+    .tab-button {
+      display: grid;
+      gap: 2px;
+      border-radius: 13px;
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 0.78rem;
+    }
+
+    .tab-button span {
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+
+    .tab-button.active {
+      background: var(--teal-soft);
+      color: var(--teal-dark);
+    }
+
+    @media (min-width: 820px) {
+      .app {
+        padding: 28px 24px 104px;
+      }
+
+      .topbar {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+      }
+
+      .view.active {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .overview-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+        gap: 14px;
+      }
+
+      .case-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .settings-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        gap: 14px;
+        align-items: start;
+      }
+
+      .asset-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .form-grid,
+      .asset-inputs,
+      .actions,
+      .hero-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .manual-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>退休金目標</h1>
+        <p class="subtitle">用 0050、0050正二、SMH 估算 40 歲前達到 1,500 萬台幣還差多遠。</p>
+      </div>
+      <div class="status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="data-status">使用內建參考資料</span>
+      </div>
+    </header>
+
+    <section id="view-overview" class="view active" data-view="overview">
+      <div class="overview-grid">
+        <section class="panel hero-card" aria-label="退休目標總覽">
+          <div class="hero-top">
+            <div>
+              <p class="hero-label">目前資產估值</p>
+              <div id="current-value" class="hero-value">NT$0</div>
+            </div>
+            <span id="years-left" class="hero-chip">14 年</span>
+          </div>
+          <div class="progress-rail" aria-label="距離目標完成度">
+            <div id="goal-progress-fill" class="progress-fill"></div>
+          </div>
+          <div class="hero-meta">
+            <div>
+              <span class="hero-label">目標淨資產</span>
+              <strong id="target-label">NT$15,000,000</strong>
+            </div>
+            <div>
+              <span class="hero-label">與目標差距</span>
+              <strong id="gap-value">NT$15,000,000</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="case-heading">
+          <div class="section-title">
+            <h2 id="case-heading">每年需要投入</h2>
+            <span class="small">年末投入</span>
+          </div>
+          <div class="case-grid">
+            <article class="case-card bear">
+              <div>
+                <h3>Bear case</h3>
+                <strong id="bear-required">待試算</strong>
+                <p class="small" id="bear-detail">保守情境</p>
+              </div>
+              <span class="pill">Bear</span>
+            </article>
+            <article class="case-card base">
+              <div>
+                <h3>Base case</h3>
+                <strong id="base-required">待試算</strong>
+                <p class="small" id="base-detail">平均情境</p>
+              </div>
+              <span class="pill">Base</span>
+            </article>
+            <article class="case-card bull">
+              <div>
+                <h3>Bull case</h3>
+                <strong id="bull-required">待試算</strong>
+                <p class="small" id="bull-detail">樂觀情境</p>
+              </div>
+              <span class="pill">Bull</span>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel chart-card" aria-labelledby="progress-heading">
+        <div class="section-title">
+          <div>
+            <h2 id="progress-heading">距離 1,500 萬進度</h2>
+            <p class="small">不含未來新增投入，只看目前持股自然成長。</p>
+          </div>
+          <span class="small">Bear / Base / Bull</span>
+        </div>
+        <div class="chart-legend" aria-label="圖例">
+          <span class="legend-item bear-line"><span class="legend-swatch"></span>Bear</span>
+          <span class="legend-item base-line"><span class="legend-swatch"></span>Base</span>
+          <span class="legend-item bull-line"><span class="legend-swatch"></span>Bull</span>
+          <span class="legend-item target-line"><span class="legend-swatch"></span>目標</span>
+        </div>
+        <div id="progress-chart" class="progress-chart" aria-label="Bear Base Bull 淨資產進度圖"></div>
+        <p class="small">圖表刻度聚焦在目標附近；超過目標後的精確金額請看下方表格。</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>年齡</th>
+                <th>Bear 資產</th>
+                <th>Bear 差距</th>
+                <th>Base 資產</th>
+                <th>Base 差距</th>
+                <th>Bull 資產</th>
+                <th>Bull 差距</th>
+              </tr>
+            </thead>
+            <tbody id="progress-table"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section id="view-holdings" class="view" data-view="holdings">
+      <section class="panel">
+        <div class="section-title">
+          <div>
+            <h2>目前持股</h2>
+            <p class="small">輸入股數後會即時更新總覽與進度。</p>
+          </div>
+          <span class="small" id="fx-label">USD/TWD 32.11</span>
+        </div>
+        <div class="asset-list">
+          <article class="asset-card">
+            <div class="asset-head">
+              <div>
+                <strong>0050</strong>
+                <code>0050.TW</code>
+              </div>
+              <div class="asset-value">市值 <strong id="value-0050">NT$0</strong></div>
+            </div>
+            <div class="asset-inputs">
+              <label>
+                <span>股數</span>
+                <input class="shares" data-symbol="0050.TW" type="number" min="0" step="1" value="0">
+              </label>
+              <label>
+                <span>未來投入比例 %</span>
+                <input class="allocation" data-symbol="0050.TW" type="number" min="0" max="100" step="1" value="50">
+              </label>
+            </div>
+          </article>
+          <article class="asset-card">
+            <div class="asset-head">
+              <div>
+                <strong>0050正二</strong>
+                <code>00631L.TW</code>
+              </div>
+              <div class="asset-value">市值 <strong id="value-00631L">NT$0</strong></div>
+            </div>
+            <div class="asset-inputs">
+              <label>
+                <span>股數</span>
+                <input class="shares" data-symbol="00631L.TW" type="number" min="0" step="1" value="0">
+              </label>
+              <label>
+                <span>未來投入比例 %</span>
+                <input class="allocation" data-symbol="00631L.TW" type="number" min="0" max="100" step="1" value="20">
+              </label>
+            </div>
+          </article>
+          <article class="asset-card">
+            <div class="asset-head">
+              <div>
+                <strong>SMH</strong>
+                <code>SMH</code>
+              </div>
+              <div class="asset-value">市值 <strong id="value-smh">NT$0</strong></div>
+            </div>
+            <div class="asset-inputs">
+              <label>
+                <span>股數</span>
+                <input class="shares" data-symbol="SMH" type="number" min="0" step="0.0001" value="0">
+              </label>
+              <label>
+                <span>未來投入比例 %</span>
+                <input class="allocation" data-symbol="SMH" type="number" min="0" max="100" step="1" value="30">
+              </label>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-title">
+          <h2>標的資料</h2>
+          <span class="small">價格 / 報酬假設</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>標的</th>
+                <th>價格</th>
+                <th>股數</th>
+                <th>目前市值</th>
+                <th>Bear</th>
+                <th>Base</th>
+                <th>Bull</th>
+                <th>投入比例</th>
+              </tr>
+            </thead>
+            <tbody id="asset-table"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section id="view-settings" class="view" data-view="settings">
+      <div class="settings-grid">
+        <section class="panel form-stack">
+          <div class="section-title">
+            <div>
+              <h2>目標設定</h2>
+              <p class="small">調整年齡與目標金額。</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label>
+              <span>目前年齡</span>
+              <input id="current-age" type="number" min="0" max="120" value="26">
+            </label>
+            <label>
+              <span>目標年齡</span>
+              <input id="target-age" type="number" min="0" max="120" value="40">
+            </label>
+            <label>
+              <span>目標淨資產（台幣）</span>
+              <input id="target-value" type="number" min="0" step="10000" value="15000000">
+            </label>
+            <label>
+              <span>資料來源</span>
+              <input value="Yahoo Finance / 內建參考" disabled>
+            </label>
+          </div>
+          <div class="actions">
+            <button id="fetch-data" type="button">更新價格與歷史報酬</button>
+            <button id="recalculate" class="secondary" type="button">重新試算</button>
+          </div>
+          <section id="message" class="notice">
+            目前先用內建參考價格試算；按更新可嘗試抓 Yahoo Finance 資料。
+          </section>
+        </section>
+
+        <section class="panel">
+          <div class="section-title">
+            <div>
+              <h2>手動覆寫</h2>
+              <p class="small">如果抓價失敗，可以直接調整價格與情境報酬。</p>
+            </div>
+          </div>
+          <button id="toggle-manual" class="secondary" type="button">展開 / 收合手動覆寫</button>
+          <div id="manual-panel" class="manual-panel" aria-label="手動覆寫資料">
+            <div class="manual-row">
+              <strong>標的</strong>
+              <span class="small">價格</span>
+              <span class="small">Bear %</span>
+              <span class="small">Base %</span>
+              <span class="small">Bull %</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="主要導覽">
+    <button class="tab-button active" type="button" data-tab="overview"><span>⌂</span>總覽</button>
+    <button class="tab-button" type="button" data-tab="holdings"><span>▦</span>持股</button>
+    <button class="tab-button" type="button" data-tab="settings"><span>⚙</span>設定</button>
+  </nav>
+
+  <script>
+    const assets = [
+      { symbol: "0050.TW", name: "0050", currency: "TWD", defaultPrice: 106.2, fallbackReturns: { bear: 0.0499, base: 0.2378, bull: 0.5473 } },
+      { symbol: "00631L.TW", name: "0050正二", currency: "TWD", defaultPrice: 37.19, fallbackReturns: { bear: 0.0663, base: 0.43, bull: 0.8606 } },
+      { symbol: "SMH", name: "SMH", currency: "USD", defaultPrice: 568.87, fallbackReturns: { bear: 0.1368, base: 0.3441, bull: 0.6343 } }
+    ];
+
+    const state = {
+      fx: 32.11,
+      updatedAt: null,
+      data: Object.fromEntries(assets.map((asset) => [
+        asset.symbol,
+        { price: asset.defaultPrice, returns: { ...asset.fallbackReturns }, source: "built-in" }
+      ]))
+    };
+
+    const formatTwd = new Intl.NumberFormat("zh-TW", {
+      style: "currency",
+      currency: "TWD",
+      maximumFractionDigits: 0
+    });
+    const formatNumber = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 2 });
+
+    function toNumber(value, fallback = 0) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    function annualizedReturn(startValue, endValue, years) {
+      if (startValue <= 0 || endValue <= 0 || years <= 0) return 0;
+      return Math.pow(endValue / startValue, 1 / years) - 1;
+    }
+
+    function rollingAnnualizedReturns(points, years) {
+      const months = Math.round(years * 12);
+      const output = [];
+      for (let index = 0; index + months < points.length; index += 1) {
+        const start = points[index];
+        const end = points[index + months];
+        if (start.value > 0 && end.value > 0) {
+          const actualYears = (end.date - start.date) / (365.25 * 24 * 60 * 60 * 1000);
+          output.push(annualizedReturn(start.value, end.value, actualYears));
+        }
+      }
+      return output.filter(Number.isFinite);
+    }
+
+    function calculateRequiredContribution(targetValue, currentAssets, annualReturn, years) {
+      if (years <= 0) return Number.POSITIVE_INFINITY;
+      const projectedCurrent = currentAssets.reduce((total, asset) => {
+        return total + asset.value * Math.pow(1 + asset.returnRate, years);
+      }, 0);
+      const remaining = Math.max(0, targetValue - projectedCurrent);
+      if (remaining === 0) return 0;
+      const factor = Math.abs(annualReturn) < 0.000001
+        ? years
+        : (Math.pow(1 + annualReturn, years) - 1) / annualReturn;
+      if (!Number.isFinite(factor) || factor <= 0) return Number.POSITIVE_INFINITY;
+      return remaining / factor;
+    }
+
+    function calculateScenario(input, scenario) {
+      const allocations = getAllocations();
+      const currentAssets = assets.map((asset) => ({
+        value: getAssetValueTwd(asset),
+        returnRate: state.data[asset.symbol].returns[scenario]
+      }));
+      const portfolioReturn = assets.reduce((total, asset) => {
+        return total + (allocations[asset.symbol] || 0) * state.data[asset.symbol].returns[scenario];
+      }, 0);
+      const required = calculateRequiredContribution(input.targetValue, currentAssets, portfolioReturn, input.years);
+      return { required, portfolioReturn };
+    }
+
+    function getInputs() {
+      const currentAge = toNumber(document.querySelector("#current-age").value);
+      const targetAge = toNumber(document.querySelector("#target-age").value);
+      return {
+        currentAge,
+        targetAge,
+        years: targetAge - currentAge,
+        targetValue: toNumber(document.querySelector("#target-value").value)
+      };
+    }
+
+    function getShares(symbol) {
+      return toNumber(document.querySelector(`.shares[data-symbol="${symbol}"]`).value);
+    }
+
+    function getAllocations() {
+      return Object.fromEntries([...document.querySelectorAll(".allocation")].map((input) => [
+        input.dataset.symbol,
+        Math.max(0, toNumber(input.value)) / 100
+      ]));
+    }
+
+    function allocationTotal() {
+      return [...document.querySelectorAll(".allocation")].reduce((sum, input) => sum + Math.max(0, toNumber(input.value)), 0);
+    }
+
+    function getAssetValueTwd(asset) {
+      const price = state.data[asset.symbol].price;
+      const fx = asset.currency === "USD" ? state.fx : 1;
+      return getShares(asset.symbol) * price * fx;
+    }
+
+    function priceLabel(asset) {
+      const price = state.data[asset.symbol].price;
+      return price ? `${asset.currency} ${formatNumber.format(price)}` : "待載入";
+    }
+
+    function pct(value) {
+      if (!Number.isFinite(value)) return "N/A";
+      return `${(value * 100).toFixed(2)}%`;
+    }
+
+    function contributionLabel(value) {
+      if (value === Number.POSITIVE_INFINITY) return "無法試算";
+      return formatTwd.format(Math.ceil(value));
+    }
+
+    function gapLabel(targetValue, value) {
+      const gap = targetValue - value;
+      if (gap <= 0) return `超過 ${formatTwd.format(Math.abs(Math.floor(gap)))}`;
+      return `差 ${formatTwd.format(Math.ceil(gap))}`;
+    }
+
+    function projectedValueForScenario(scenario, yearsFromNow) {
+      return assets.reduce((total, asset) => {
+        const value = getAssetValueTwd(asset);
+        const returnRate = state.data[asset.symbol].returns[scenario];
+        return total + value * Math.pow(1 + returnRate, yearsFromNow);
+      }, 0);
+    }
+
+    function buildProgressRows(input) {
+      if (input.years < 0) return [];
+      const years = Math.floor(input.years);
+      return Array.from({ length: years + 1 }, (_, index) => ({
+        age: input.currentAge + index,
+        bear: projectedValueForScenario("bear", index),
+        base: projectedValueForScenario("base", index),
+        bull: projectedValueForScenario("bull", index)
+      }));
+    }
+
+    function svgPoint(row, scenario, index, rows, scale) {
+      const chartWidth = 820;
+      const chartHeight = 190;
+      const left = 54;
+      const top = 26;
+      const x = rows.length <= 1 ? left : left + (index / (rows.length - 1)) * chartWidth;
+      const y = top + chartHeight - (row[scenario] / scale) * chartHeight;
+      return `${x.toFixed(1)},${Math.max(top, Math.min(top + chartHeight, y)).toFixed(1)}`;
+    }
+
+    function renderProgress(input, validation) {
+      const chart = document.querySelector("#progress-chart");
+      const table = document.querySelector("#progress-table");
+      if (validation) {
+        chart.innerHTML = `<p class="notice error">請先修正輸入資料後再產生進度表。</p>`;
+        table.innerHTML = "";
+        return;
+      }
+
+      const rows = buildProgressRows(input);
+      const scale = input.targetValue > 0 ? input.targetValue * 1.35 : 1;
+      const targetY = 26 + 190 - (input.targetValue / scale) * 190;
+      const path = (scenario) => rows.map((row, index) => svgPoint(row, scenario, index, rows, scale)).join(" ");
+      const yTicks = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+        const value = scale * ratio;
+        const y = 216 - ratio * 190;
+        return `
+          <line x1="54" y1="${y.toFixed(1)}" x2="874" y2="${y.toFixed(1)}" stroke="#d9e2dc" stroke-width="1" />
+          <text x="46" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="12" fill="#66756e">${formatTwd.format(value).replace("NT$", "$")}</text>
+        `;
+      }).join("");
+
+      chart.innerHTML = `
+        <svg viewBox="0 0 900 260" role="img" aria-label="距離 1500 萬目標的 Bear Base Bull 進度線">
+          ${yTicks}
+          <line x1="54" y1="${targetY.toFixed(1)}" x2="874" y2="${targetY.toFixed(1)}" stroke="#b45309" stroke-width="2" stroke-dasharray="7 6" />
+          <text x="880" y="${(targetY - 6).toFixed(1)}" text-anchor="end" font-size="12" fill="#b45309">目標</text>
+          <polyline points="${path("bear")}" fill="none" stroke="#b42318" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+          <polyline points="${path("base")}" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+          <polyline points="${path("bull")}" fill="none" stroke="#15803d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+          <text x="54" y="240" font-size="12" fill="#66756e">${rows[0]?.age ?? input.currentAge} 歲</text>
+          <text x="874" y="240" text-anchor="end" font-size="12" fill="#66756e">${rows.at(-1)?.age ?? input.targetAge} 歲</text>
+        </svg>
+      `;
+
+      table.innerHTML = rows.map((row) => `
+        <tr>
+          <td>${formatNumber.format(row.age)}</td>
+          <td>${formatTwd.format(row.bear)}</td>
+          <td>${gapLabel(input.targetValue, row.bear)}</td>
+          <td>${formatTwd.format(row.base)}</td>
+          <td>${gapLabel(input.targetValue, row.base)}</td>
+          <td>${formatTwd.format(row.bull)}</td>
+          <td>${gapLabel(input.targetValue, row.bull)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function proxiedUrls(url) {
+      return [
+        `https://corsproxy.io/?${encodeURIComponent(url)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        url
+      ];
+    }
+
+    async function fetchJsonWithFallback(url) {
+      let lastError = null;
+      for (const candidate of proxiedUrls(url)) {
+        try {
+          const response = await fetch(candidate);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        } catch (error) {
+          lastError = error;
+        }
+      }
+      throw lastError || new Error("資料抓取失敗");
+    }
+
+    async function fetchChart(symbol, range = "10y", interval = "1mo") {
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=${interval}&events=history&includeAdjustedClose=true`;
+      const payload = await fetchJsonWithFallback(url);
+      const result = payload.chart?.result?.[0];
+      if (!result) throw new Error(`${symbol} 沒有回傳資料`);
+      return result;
+    }
+
+    function pointsFromChart(result) {
+      const timestamps = result.timestamp || [];
+      const quoteClose = result.indicators?.quote?.[0]?.close || [];
+      const adjClose = result.indicators?.adjclose?.[0]?.adjclose || [];
+      return timestamps.map((timestamp, index) => {
+        const value = adjClose[index] ?? quoteClose[index];
+        return { date: new Date(timestamp * 1000), value };
+      }).filter((point) => Number.isFinite(point.value) && point.value > 0);
+    }
+
+    function returnsFromPoints(points, fallbackReturns) {
+      if (points.length < 2) return { ...fallbackReturns };
+      const first = points[0];
+      const last = points[points.length - 1];
+      const years = (last.date - first.date) / (365.25 * 24 * 60 * 60 * 1000);
+      const base = annualizedReturn(first.value, last.value, years);
+      const rolling = rollingAnnualizedReturns(points, 3);
+      return {
+        bear: rolling.length ? Math.min(...rolling) : fallbackReturns.bear,
+        base: Number.isFinite(base) ? base : fallbackReturns.base,
+        bull: rolling.length ? Math.max(...rolling) : fallbackReturns.bull
+      };
+    }
+
+    async function fetchAssetData(asset) {
+      const result = await fetchChart(asset.symbol, "10y", "1mo");
+      const points = pointsFromChart(result);
+      const latest = result.meta?.regularMarketPrice ?? points.at(-1)?.value ?? 0;
+      return {
+        price: latest,
+        returns: returnsFromPoints(points, asset.fallbackReturns),
+        source: "yahoo"
+      };
+    }
+
+    async function fetchFx() {
+      const result = await fetchChart("USDTWD=X", "5d", "1d");
+      const points = pointsFromChart(result);
+      return result.meta?.regularMarketPrice ?? points.at(-1)?.value ?? 0;
+    }
+
+    async function refreshData() {
+      const button = document.querySelector("#fetch-data");
+      button.disabled = true;
+      setStatus("抓取中...");
+      setMessage("正在嘗試更新 Yahoo Finance 價格、匯率與歷史報酬。", false);
+
+      const results = await Promise.allSettled([
+        fetchFx(),
+        ...assets.map(fetchAssetData)
+      ]);
+      const fxResult = results[0];
+      const assetResults = results.slice(1);
+      let updatedCount = 0;
+
+      if (fxResult.status === "fulfilled" && fxResult.value > 0) {
+        state.fx = fxResult.value;
+        updatedCount += 1;
+      }
+      assetResults.forEach((result, index) => {
+        if (result.status === "fulfilled" && result.value.price > 0) {
+          state.data[assets[index].symbol] = result.value;
+          updatedCount += 1;
+        }
+      });
+
+      if (updatedCount > 0) {
+        state.updatedAt = new Date();
+        setStatus(`已更新 ${state.updatedAt.toLocaleString("zh-TW")}`);
+        setMessage(`已更新 ${updatedCount} 筆資料；未更新項目保留內建參考資料。`, false);
+      } else {
+        setStatus("使用內建參考資料");
+        setMessage("Yahoo Finance 目前抓取失敗，已保留內建參考價格與報酬繼續試算。", false);
+      }
+
+      button.disabled = false;
+      renderManualPanel();
+      render({ preserveMessage: true });
+    }
+
+    function setStatus(text) {
+      document.querySelector("#data-status").textContent = text;
+    }
+
+    function setMessage(text, isError) {
+      const message = document.querySelector("#message");
+      message.textContent = text;
+      message.className = isError ? "notice error" : "notice";
+    }
+
+    function renderManualPanel() {
+      const panel = document.querySelector("#manual-panel");
+      const existingRows = panel.querySelectorAll(".manual-row[data-symbol]");
+      existingRows.forEach((row) => row.remove());
+      assets.forEach((asset) => {
+        const data = state.data[asset.symbol];
+        const row = document.createElement("div");
+        row.className = "manual-row";
+        row.dataset.symbol = asset.symbol;
+        row.innerHTML = `
+          <strong>${asset.name}</strong>
+          <input data-field="price" data-symbol="${asset.symbol}" type="number" min="0" step="0.01" value="${data.price || ""}" aria-label="${asset.name} 手動價格">
+          <input data-field="bear" data-symbol="${asset.symbol}" type="number" step="0.1" value="${(data.returns.bear * 100).toFixed(2)}" aria-label="${asset.name} bear 年化報酬">
+          <input data-field="base" data-symbol="${asset.symbol}" type="number" step="0.1" value="${(data.returns.base * 100).toFixed(2)}" aria-label="${asset.name} base 年化報酬">
+          <input data-field="bull" data-symbol="${asset.symbol}" type="number" step="0.1" value="${(data.returns.bull * 100).toFixed(2)}" aria-label="${asset.name} bull 年化報酬">
+        `;
+        panel.appendChild(row);
+      });
+    }
+
+    function applyManualOverrides() {
+      document.querySelectorAll("#manual-panel input").forEach((input) => {
+        const symbol = input.dataset.symbol;
+        const field = input.dataset.field;
+        if (field === "price") {
+          state.data[symbol].price = Math.max(0, toNumber(input.value));
+          return;
+        }
+        state.data[symbol].returns[field] = toNumber(input.value) / 100;
+      });
+    }
+
+    function validate(input) {
+      const total = allocationTotal();
+      if (input.years <= 0) return "目標年齡必須大於目前年齡。";
+      if (input.targetValue <= 0) return "目標淨資產必須大於 0。";
+      if (Math.abs(total - 100) > 0.01) return `未來投入比例目前合計 ${total.toFixed(2)}%，必須等於 100%。`;
+      if (assets.some((asset) => state.data[asset.symbol].price <= 0)) return "仍有標的價格為 0，請先更新資料或手動輸入價格。";
+      if (assets.some((asset) => asset.currency === "USD" && state.fx <= 0)) return "SMH 需要 USD/TWD 匯率。";
+      return "";
+    }
+
+    function render(options = {}) {
+      const input = getInputs();
+      const totalValue = assets.reduce((sum, asset) => sum + getAssetValueTwd(asset), 0);
+      const validation = validate(input);
+      const scenarios = validation ? null : {
+        bear: calculateScenario(input, "bear"),
+        base: calculateScenario(input, "base"),
+        bull: calculateScenario(input, "bull")
+      };
+
+      document.querySelector("#current-value").textContent = formatTwd.format(totalValue);
+      document.querySelector("#target-label").textContent = formatTwd.format(input.targetValue);
+      document.querySelector("#gap-value").textContent = gapLabel(input.targetValue, totalValue);
+      document.querySelector("#years-left").textContent = `${formatNumber.format(input.years)} 年`;
+      document.querySelector("#goal-progress-fill").style.width = `${Math.min(100, input.targetValue > 0 ? (totalValue / input.targetValue) * 100 : 0)}%`;
+
+      document.querySelector("#bear-required").textContent = scenarios ? contributionLabel(scenarios.bear.required) : "待試算";
+      document.querySelector("#base-required").textContent = scenarios ? contributionLabel(scenarios.base.required) : "待試算";
+      document.querySelector("#bull-required").textContent = scenarios ? contributionLabel(scenarios.bull.required) : "待試算";
+      document.querySelector("#bear-detail").textContent = scenarios ? `投資組合假設報酬 ${pct(scenarios.bear.portfolioReturn)}` : "保守情境";
+      document.querySelector("#base-detail").textContent = scenarios ? `投資組合假設報酬 ${pct(scenarios.base.portfolioReturn)}` : "平均情境";
+      document.querySelector("#bull-detail").textContent = scenarios ? `投資組合假設報酬 ${pct(scenarios.bull.portfolioReturn)}` : "樂觀情境";
+
+      document.querySelector("#fx-label").textContent = state.fx ? `USD/TWD ${formatNumber.format(state.fx)}` : "USD/TWD 尚未載入";
+      renderAssetValues();
+      renderAssetTable();
+      renderProgress(input, validation);
+
+      if (validation) {
+        setMessage(validation, true);
+      } else if (!options.preserveMessage && !document.querySelector("#message").classList.contains("error")) {
+        setMessage("試算已更新。每年投入金額採年末投入，且假設未來投入按你設定的比例配置。", false);
+      }
+    }
+
+    function renderAssetValues() {
+      document.querySelector("#value-0050").textContent = formatTwd.format(getAssetValueTwd(assets[0]));
+      document.querySelector("#value-00631L").textContent = formatTwd.format(getAssetValueTwd(assets[1]));
+      document.querySelector("#value-smh").textContent = formatTwd.format(getAssetValueTwd(assets[2]));
+    }
+
+    function renderAssetTable() {
+      const rows = assets.map((asset) => {
+        const data = state.data[asset.symbol];
+        return `
+          <tr>
+            <td>${asset.name}</td>
+            <td>${priceLabel(asset)}</td>
+            <td>${formatNumber.format(getShares(asset.symbol))}</td>
+            <td>${formatTwd.format(getAssetValueTwd(asset))}</td>
+            <td>${pct(data.returns.bear)}</td>
+            <td>${pct(data.returns.base)}</td>
+            <td>${pct(data.returns.bull)}</td>
+            <td>${formatNumber.format(toNumber(document.querySelector(`.allocation[data-symbol="${asset.symbol}"]`).value))}%</td>
+          </tr>
+        `;
+      }).join("");
+      document.querySelector("#asset-table").innerHTML = rows;
+    }
+
+    function setActiveTab(tabName) {
+      document.querySelectorAll(".view").forEach((view) => {
+        view.classList.toggle("active", view.dataset.view === tabName);
+      });
+      document.querySelectorAll(".tab-button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.tab === tabName);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.querySelector("#fetch-data").addEventListener("click", refreshData);
+    document.querySelector("#recalculate").addEventListener("click", () => {
+      if (document.querySelector("#manual-panel").classList.contains("open")) applyManualOverrides();
+      render();
+    });
+    document.querySelector("#toggle-manual").addEventListener("click", () => {
+      document.querySelector("#manual-panel").classList.toggle("open");
+    });
+    document.querySelectorAll(".tab-button").forEach((button) => {
+      button.addEventListener("click", () => setActiveTab(button.dataset.tab));
+    });
+    document.addEventListener("input", (event) => {
+      if (!event.target.matches("input")) return;
+      if (event.target.closest("#manual-panel")) applyManualOverrides();
+      render();
+    });
+
+    window.retirementCalculator = {
+      annualizedReturn,
+      rollingAnnualizedReturns,
+      calculateRequiredContribution,
+      returnsFromPoints
+    };
+
+    renderManualPanel();
+    render();
+  </script>
+</body>
+</html>
